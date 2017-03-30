@@ -3,6 +3,8 @@
 import UIKit
 import PlaygroundSupport
 
-let space = Space()
+let space = SpaceViewController()
 
 PlaygroundPage.current.liveView = space
+
+space.view.frame.size

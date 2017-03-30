@@ -1,19 +1,60 @@
 import UIKit
 
-let spaceWidth: CGFloat = 1000
-let spaceHeight: CGFloat = 700
+let spaceWidth: CGFloat = 375
+let spaceHeight: CGFloat = 668
 
-public class Space: UIView {
+public class SpaceViewController: UIViewController {
+    override public func loadView() {
+        let spaceView = UIScrollView(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
+        let solarSystemView = SolarSystem()
+        
+        spaceView.contentSize = solarSystemView.frame.size
+        spaceView.addSubview(solarSystemView)
+        spaceView.flashScrollIndicators()
+        spaceView.backgroundColor = .black
+        
+        self.view = spaceView
+    }
+}
+
+class WelcomeView: UIView {
     public init() {
         super.init(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
         
-        self.backgroundColor = .black
+        let marginsGuide = self.layoutMarginsGuide
         
-        let sun = SolarSystemBodies.sun
-        self.addSubview(SpaceBody(x: 0, diameter: sun.diameter))
+        let welcomeLabel = UILabel(frame: CGRect.zero)
+        welcomeLabel.text = "What if Pluto was 1 pixel wide?"
+        welcomeLabel.leadingAnchor.constraint(equalTo: marginsGuide.leadingAnchor).isActive = true
+        welcomeLabel.trailingAnchor.constraint(equalTo: marginsGuide.trailingAnchor).isActive = true
+        welcomeLabel.centerYAnchor.constraint(equalTo: marginsGuide.centerYAnchor).isActive = true
     }
     
-    required public init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class SolarSystem: UIView {
+    public init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: SolarSystemBodies.totalWidth, height: spaceHeight))
+    }
+    
+    override func didMoveToSuperview() {
+        let allBodies = SolarSystemBodies.sorted
+        var diameterSum: CGFloat = 0
+        
+        for (index, body) in allBodies.enumerated() {
+            let bodyX = CGFloat((index + 1) * 10) + diameterSum
+            
+            let bodyView = SpaceBody(x: bodyX, diameter: body.diameter)
+            self.addSubview(bodyView)
+            
+            diameterSum += body.diameter
+        }
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
@@ -25,7 +66,7 @@ class SpaceBody: UIView {
         super.init(frame: CGRect(x: x, y: renderY, width: diameter, height: diameter))
         
         self.layer.cornerRadius = diameter / 2
-        self.backgroundColor = .white
+        self.backgroundColor = .red
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -46,8 +87,16 @@ enum SolarSystemBodies {
     case neptune
     case pluto
     
-    var sorted: [SolarSystemBodies] {
+    static var sorted: [SolarSystemBodies] {
         return [.sun, .mercury, .venus, .earth, .moon, .mars, .jupiter, .saturn, .uranus, .neptune, .pluto]
+    }
+    
+    static var totalWidth: CGFloat {
+        return 10.0 + SolarSystemBodies.sorted.reduce(0.0) {
+            partial, body in
+            
+            return partial + body.diameter + 10
+        }
     }
     
     var distanceFromSun: CGFloat {
