@@ -4,40 +4,90 @@ let spaceWidth: CGFloat = 375
 let spaceHeight: CGFloat = 668
 
 public class SpaceViewController: UIViewController {
+    var welcomeView: WelcomeView!
+    
     override public func loadView() {
         let spaceView = UIScrollView(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
-        let solarSystemView = SolarSystem()
         
-        spaceView.contentSize = solarSystemView.frame.size
+        self.welcomeView = WelcomeView()
+        self.welcomeView.translatesAutoresizingMaskIntoConstraints = false
+        spaceView.addSubview(self.welcomeView)
+        
+        let solarSystemView = SolarSystem(xOffset: spaceWidth * 2)
+        spaceView.contentSize = CGSize(width: solarSystemView.frame.size.width + spaceWidth * 2, height: solarSystemView.frame.size.height)
         spaceView.addSubview(solarSystemView)
         spaceView.flashScrollIndicators()
         spaceView.backgroundColor = .black
         
         self.view = spaceView
     }
+    
+    public override func viewDidLoad() {
+        self.welcomeView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        self.welcomeView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        self.welcomeView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
+        self.welcomeView.heightAnchor.constraint(equalTo: self.view.heightAnchor).isActive = true
+    }
 }
 
 class WelcomeView: UIView {
+    var welcomeLabel: UILabel!
+    var startButton: UIButton!
+    
     public init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
+        super.init(frame: CGRect.zero)
         
-        let marginsGuide = self.layoutMarginsGuide
+        self.welcomeLabel = UILabel()
+        self.setupWelcomeLabel()
+        self.addSubview(self.welcomeLabel)
         
-        let welcomeLabel = UILabel(frame: CGRect.zero)
-        welcomeLabel.text = "What if Pluto was 1 pixel wide?"
-        welcomeLabel.leadingAnchor.constraint(equalTo: marginsGuide.leadingAnchor).isActive = true
-        welcomeLabel.trailingAnchor.constraint(equalTo: marginsGuide.trailingAnchor).isActive = true
-        welcomeLabel.centerYAnchor.constraint(equalTo: marginsGuide.centerYAnchor).isActive = true
+        self.startButton = UIButton()
+        self.setupStartButton()
+        self.addSubview(self.startButton)
+    }
+    
+    override func didMoveToSuperview() {
+        self.setupWelcomeLabelConstraints()
+        self.setupStartButtonConstraints()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func setupWelcomeLabel() {
+        self.welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.welcomeLabel.text = "What if Pluto was 1 pixel wide?"
+        self.welcomeLabel.textColor = .white
+        self.welcomeLabel.font = UIFont.boldSystemFont(ofSize: 44)
+        self.welcomeLabel.numberOfLines = 0
+    }
+    
+    func setupWelcomeLabelConstraints() {
+        let marginsGuide = self.layoutMarginsGuide
+        
+        self.welcomeLabel.leadingAnchor.constraint(equalTo: marginsGuide.leadingAnchor, constant: 8).isActive = true
+        self.welcomeLabel.trailingAnchor.constraint(equalTo: marginsGuide.trailingAnchor, constant: 8).isActive = true
+        self.welcomeLabel.bottomAnchor.constraint(equalTo: marginsGuide.centerYAnchor, constant: -16).isActive = true
+    }
+    
+    func setupStartButton() {
+        self.startButton.translatesAutoresizingMaskIntoConstraints = false
+        self.startButton.setTitle("Find out >", for: .normal)
+        self.startButton.setTitleColor(.white, for: .normal)
+    }
+    
+    func setupStartButtonConstraints() {
+        let marginsGuide = self.layoutMarginsGuide
+        
+        self.startButton.centerXAnchor.constraint(equalTo: marginsGuide.centerXAnchor).isActive = true
+        self.startButton.topAnchor.constraint(equalTo: marginsGuide.centerYAnchor, constant: 16).isActive = true
+    }
 }
 
 class SolarSystem: UIView {
-    public init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: SolarSystemBodies.totalWidth, height: spaceHeight))
+    public init(xOffset: CGFloat) {
+        super.init(frame: CGRect(x: xOffset, y: 0, width: SolarSystemBodies.totalWidth, height: spaceHeight))
     }
     
     override func didMoveToSuperview() {

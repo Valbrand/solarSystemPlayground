@@ -5,6 +5,5 @@ import PlaygroundSupport
 
 let space = SpaceViewController()
 
+PlaygroundPage.current.needsIndefiniteExecution = true
 PlaygroundPage.current.liveView = space
-
-space.view.frame.size
