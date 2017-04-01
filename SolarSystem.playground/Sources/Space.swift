@@ -3,13 +3,25 @@ import UIKit
 let spaceWidth: CGFloat = 375
 let spaceHeight: CGFloat = 668
 
+enum ScrollDirection {
+    case forward
+    case backward
+}
+
+typealias ScrollingCallback = (ScrollDirection) -> ()
+
 public class SpaceViewController: UIViewController {
     var welcomeView: WelcomeView!
+    var scrollingCallback: ScrollingCallback = {
+        direction in
+        
+        print("\(direction)")
+    }
     
     override public func loadView() {
         let spaceView = UIScrollView(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
         
-        self.welcomeView = WelcomeView()
+        self.welcomeView = WelcomeView(scrollingCallback: self.scrollingCallback)
         self.welcomeView.translatesAutoresizingMaskIntoConstraints = false
         spaceView.addSubview(self.welcomeView)
         
@@ -34,7 +46,11 @@ class WelcomeView: UIView {
     var welcomeLabel: UILabel!
     var startButton: UIButton!
     
-    public init() {
+    var scrollingCallback: ScrollingCallback
+    
+    public init(scrollingCallback: @escaping ScrollingCallback) {
+        self.scrollingCallback = scrollingCallback
+        
         super.init(frame: CGRect.zero)
         
         self.welcomeLabel = UILabel()
@@ -75,6 +91,7 @@ class WelcomeView: UIView {
         self.startButton.translatesAutoresizingMaskIntoConstraints = false
         self.startButton.setTitle("Find out >", for: .normal)
         self.startButton.setTitleColor(.white, for: .normal)
+        self.startButton.addTarget(self, action: #selector(WelcomeView.startButtonAction), for: .touchUpInside)
     }
     
     func setupStartButtonConstraints() {
@@ -82,6 +99,10 @@ class WelcomeView: UIView {
         
         self.startButton.centerXAnchor.constraint(equalTo: marginsGuide.centerXAnchor).isActive = true
         self.startButton.topAnchor.constraint(equalTo: marginsGuide.centerYAnchor, constant: 16).isActive = true
+    }
+    
+    func startButtonAction() {
+        self.scrollingCallback(.forward)
     }
 }
 
