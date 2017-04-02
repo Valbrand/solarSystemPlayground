@@ -5,34 +5,48 @@ let spaceHeight: CGFloat = 668
 let baseOffset: CGFloat = spaceWidth
 
 public class SolarSystem: UIView {
+    var spaceBodyViews: [SpaceBody]!
+    
     public init() {
         super.init(frame: CGRect(x: baseOffset, y: 0, width: SolarSystemBodies.totalWidth, height: spaceHeight))
-    }
-    
-    override public func didMoveToSuperview() {
-        for body in SolarSystemBodies.sorted {
-            let bodyView = SpaceBody(body)
-            self.addSubview(bodyView)
+        
+        self.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.spaceBodyViews = SolarSystemBodies.sorted.map { SpaceBody($0) }
+        
+        for i in 0..<self.spaceBodyViews.count {
+            self.addSubview(self.spaceBodyViews[i])
         }
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
-
-class SpaceBody: UIView {
-    init(_ body: SolarSystemBodies) {
-        let renderY: CGFloat = (spaceHeight / 2) - (body.diameter / 2)
+    
+    public override func didMoveToSuperview() {
+        self.leadingAnchor.constraint(equalTo: self.superview!.leadingAnchor, constant: baseOffset).isActive = true
+        self.topAnchor.constraint(equalTo: self.superview!.topAnchor, constant: 0).isActive = true
+        self.widthAnchor.constraint(equalToConstant: SolarSystemBodies.totalWidth).isActive = true
+        self.heightAnchor.constraint(equalToConstant: spaceHeight).isActive = true
         
-        super.init(frame: CGRect(x: body.xOffset, y: renderY, width: body.diameter, height: body.diameter))
-        
-        self.layer.cornerRadius = body.diameter / 2
-        self.backgroundColor = .white
+        for i in 0..<self.spaceBodyViews.count {
+            self.spaceBodyViews[i].adjustConstraints()
+        }
     }
     
-    required public init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    func spaceBodyName(forBody body: SolarSystemBodies) -> UILabel {
+        let nameLabel = UILabel()
+        
+        nameLabel.text = body.name
+        nameLabel.font = SpaceBody.bodyNameFont
+        nameLabel.textColor = .white
+        
+        return nameLabel
+    }
+    
+    func adjustConstraintForNameLabel(_ label: UILabel, relativeTo body: SpaceBody) {
+        label.leadingAnchor.constraint(equalTo: body.trailingAnchor, constant: 8).isActive = true
+        label.centerYAnchor.constraint(equalTo: body.centerYAnchor).isActive = true
     }
 }
 
@@ -50,13 +64,11 @@ public enum SolarSystemBodies {
     case pluto
     
     static public var sorted: [SolarSystemBodies] {
-        return [.sun, .mercury, .venus, .earth, .moon, .mars, .jupiter, .saturn, .uranus, .neptune, .pluto]
+        return [.pluto, .neptune, .uranus, .saturn, .jupiter, .mars, .moon, .earth, .venus, .mercury, .sun]
     }
     
     static public var totalWidth: CGFloat {
-        let lastBody = SolarSystemBodies.sorted.last!
-        
-        return lastBody.offsetForScreenCenter + spaceWidth / 2
+        return SolarSystemBodies.pluto.distanceFromSun + spaceWidth + (SolarSystemBodies.sun.diameter / 2)
     }
     
     public var distanceFromSun: CGFloat {
@@ -64,25 +76,25 @@ public enum SolarSystemBodies {
         case .sun:
             return 0.0
         case .mercury:
-            return 24782.6086956522
+            return 24010.109519797809604
         case .venus:
-            return 46956.5217391304
+            return 45492.839090143218197
         case .earth:
-            return 65217.3913043478
+            return 63184.498736310025274
         case .moon:
-            return 65384.5217391304
+            return 63346.251053074978939
         case .mars:
-            return 99130.4347826087
+            return 96040.438079191238416
         case .jupiter:
-            return 338695.652173913
+            return 328138.163437236731255
         case .saturn:
-            return 621739.130434783
+            return 602358.887952822240944
         case .uranus:
-            return 1252173.91304348
+            return 1213142.375737152485257
         case .neptune:
-            return 1956521.73913043
+            return 1895534.962089300758214
         case .pluto:
-            return 2565217.39130435
+            return 2489469.250210614995788
         }
     }
     
@@ -113,8 +125,43 @@ public enum SolarSystemBodies {
         }
     }
     
+    public var name: String {
+        switch self {
+        case .sun:
+            return "Sun"
+        case .mercury:
+            return "Mercury"
+        case .venus:
+            return "Venus"
+        case .earth:
+            return "Earth"
+        case .moon:
+            return "Moon"
+        case .mars:
+            return "Mars"
+        case .jupiter:
+            return "Jupiter"
+        case .saturn:
+            return "Saturn"
+        case .uranus:
+            return "Uranus"
+        case .neptune:
+            return "Neptune"
+        case .pluto:
+            return "Pluto"
+        }
+    }
+    
+    public var distanceFromSunInKm: CGFloat {
+        return self.distanceFromSun * 2374.0
+    }
+    
+    public var diameterInKm: CGFloat {
+        return self.diameter * 2374.0
+    }
+    
     public var xOffset: CGFloat {
-        return self.distanceFromSun + (SolarSystemBodies.sun.diameter / 2) - (self.diameter / 2)
+        return SolarSystemBodies.pluto.distanceFromSun - self.distanceFromSun - self.diameter + (spaceWidth / 2)
     }
     
     public var offsetForScreenCenter: CGFloat {

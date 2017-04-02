@@ -10,6 +10,7 @@ public typealias ScrollingCallback = (ScrollDirection) -> ()
 
 public class SpaceViewController: UIViewController {
     var spaceView: UIScrollView!
+    var solarSystemView: SolarSystem!
     var welcomeView: WelcomeView!
     
     func scrollingCallback(_ direction: ScrollDirection) {
@@ -37,16 +38,17 @@ public class SpaceViewController: UIViewController {
         return 0.0
     }
     
-    override public func loadView() {
+    override public func loadView() {        
         self.spaceView = UIScrollView(frame: CGRect(x: 0, y: 0, width: spaceWidth, height: spaceHeight))
         
         self.welcomeView = WelcomeView(scrollingCallback: self.scrollingCallback)
         self.welcomeView.translatesAutoresizingMaskIntoConstraints = false
         self.spaceView.addSubview(self.welcomeView)
         
-        let solarSystemView = SolarSystem()
-        self.spaceView.contentSize = CGSize(width: solarSystemView.frame.size.width + baseOffset, height: solarSystemView.frame.size.height)
-        self.spaceView.addSubview(solarSystemView)
+        self.solarSystemView = SolarSystem()
+        
+        self.spaceView.contentSize = CGSize(width: self.solarSystemView.frame.size.width + baseOffset, height: self.solarSystemView.frame.size.height)
+        self.spaceView.addSubview(self.solarSystemView)
         self.spaceView.flashScrollIndicators()
         self.spaceView.backgroundColor = .black
         
@@ -54,9 +56,18 @@ public class SpaceViewController: UIViewController {
     }
     
     public override func viewDidLoad() {
-        self.welcomeView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-        self.welcomeView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        self.welcomeView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
-        self.welcomeView.heightAnchor.constraint(equalTo: self.view.heightAnchor).isActive = true
+        self.setupWelcomeViewConstraints()
+        self.setupSolarSystemConstraints()
+    }
+    
+    func setupWelcomeViewConstraints() {
+        self.welcomeView.leadingAnchor.constraint(equalTo: self.spaceView.leadingAnchor).isActive = true
+        self.welcomeView.topAnchor.constraint(equalTo: self.spaceView.topAnchor).isActive = true
+        self.welcomeView.widthAnchor.constraint(equalTo: self.spaceView.widthAnchor).isActive = true
+        self.welcomeView.heightAnchor.constraint(equalTo: self.spaceView.heightAnchor).isActive = true
+    }
+    
+    func setupSolarSystemConstraints() {
+        
     }
 }
