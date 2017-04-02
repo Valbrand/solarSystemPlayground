@@ -4,7 +4,7 @@ import UIKit
 public class SpaceBody: UIView {
     let body: SolarSystemBodies
     var nameLabel: UILabel!
-    var distanceInKmLabel: UILabel!
+    var distanceInKmLabel: UILabel?
     var sizeInKmLabel: UILabel!
     
     static let bodyNameFont = UIFont.boldSystemFont(ofSize: 24)
@@ -26,26 +26,38 @@ public class SpaceBody: UIView {
         self.nameLabel.translatesAutoresizingMaskIntoConstraints = false
         self.nameLabel.text = body.name
         self.nameLabel.font = SpaceBody.bodyNameFont
-        self.nameLabel.textColor = .white
+        self.nameLabel.textColor = self.textColor()
         self.addSubview(self.nameLabel)
         
-        self.distanceInKmLabel = UILabel()
-        self.distanceInKmLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.distanceInKmLabel.text = "\(body.distanceFromSunInKm.sanitizedString()) Km away from the sun"
-        self.distanceInKmLabel.font = SpaceBody.bodyInfoFont
-        self.distanceInKmLabel.textColor = .white
-        self.addSubview(self.distanceInKmLabel)
+        if body.distanceFromSun > 0 {
+            self.distanceInKmLabel = UILabel()
+            self.distanceInKmLabel!.translatesAutoresizingMaskIntoConstraints = false
+            self.distanceInKmLabel!.text = "\(body.distanceFromSunInKm.sanitizedString()) Km away from the sun"
+            self.distanceInKmLabel!.font = SpaceBody.bodyInfoFont
+            self.distanceInKmLabel!.textColor = self.textColor()
+            self.distanceInKmLabel!.numberOfLines = 0
+            self.addSubview(self.distanceInKmLabel!)
+        }
         
         self.sizeInKmLabel = UILabel()
         self.sizeInKmLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.sizeInKmLabel.text = "\(body.diameterInKm) Km wide"
+        self.sizeInKmLabel.text = "\(body.diameterInKm.sanitizedString()) Km wide"
         self.sizeInKmLabel.font = SpaceBody.bodyInfoFont
-        self.sizeInKmLabel.textColor = .white
+        self.sizeInKmLabel.textColor = self.textColor()
+        self.sizeInKmLabel.numberOfLines = 0
         self.addSubview(self.sizeInKmLabel)
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func textColor() -> UIColor {
+        if self.body == .sun {
+            return .black
+        } else {
+            return .white
+        }
     }
     
     public func adjustConstraints() {
@@ -54,13 +66,23 @@ public class SpaceBody: UIView {
         self.widthAnchor.constraint(equalToConstant: self.frame.size.width).isActive = true
         self.heightAnchor.constraint(equalToConstant: self.frame.size.height).isActive = true
         
-        self.nameLabel.leadingAnchor.constraint(equalTo: self.trailingAnchor, constant: 12).isActive = true
-        self.nameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-        
-        self.distanceInKmLabel.leadingAnchor.constraint(equalTo: self.nameLabel.leadingAnchor).isActive = true
-        self.distanceInKmLabel.topAnchor.constraint(equalTo: self.nameLabel.bottomAnchor).isActive = true
-        
-        self.sizeInKmLabel.leadingAnchor.constraint(equalTo: self.distanceInKmLabel.leadingAnchor).isActive = true
-        self.sizeInKmLabel.topAnchor.constraint(equalTo: self.distanceInKmLabel.bottomAnchor).isActive = true
+        if let distanceInKmLabel = self.distanceInKmLabel {
+            self.nameLabel.leadingAnchor.constraint(equalTo: self.trailingAnchor, constant: 12).isActive = true
+            self.nameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+            
+            self.distanceInKmLabel?.leadingAnchor.constraint(equalTo: self.nameLabel.leadingAnchor).isActive = true
+            self.distanceInKmLabel?.topAnchor.constraint(equalTo: self.nameLabel.bottomAnchor).isActive = true
+            self.distanceInKmLabel?.widthAnchor.constraint(equalToConstant: 160.0).isActive = true
+            
+            self.sizeInKmLabel.leadingAnchor.constraint(equalTo: distanceInKmLabel.leadingAnchor).isActive = true
+            self.sizeInKmLabel.topAnchor.constraint(equalTo: distanceInKmLabel.bottomAnchor).isActive = true
+            self.sizeInKmLabel.widthAnchor.constraint(equalToConstant: 160.0).isActive = true
+        } else {
+            self.nameLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+            self.nameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+            
+            self.sizeInKmLabel.leadingAnchor.constraint(equalTo: self.nameLabel.leadingAnchor).isActive = true
+            self.sizeInKmLabel.topAnchor.constraint(equalTo: self.nameLabel.bottomAnchor).isActive = true
+        }
     }
 }

@@ -161,7 +161,7 @@ public enum SolarSystemBodies {
     }
     
     public var xOffset: CGFloat {
-        return SolarSystemBodies.pluto.distanceFromSun - self.distanceFromSun - self.diameter + (spaceWidth / 2)
+        return SolarSystemBodies.pluto.distanceFromSun - self.distanceFromSun - (self.diameter / 2) + (spaceWidth / 2)
     }
     
     public var offsetForScreenCenter: CGFloat {
